@@ -42,8 +42,8 @@ def convert_v2x_to_new_format(v2x_path: str):
     ann_id = 0
 
     for sync_id, sync in enumerate(cooperative_data):
-        if sync_id > 220: # TODO: debug only to generate smaller data.json file
-            break 
+        # if sync_id > 220: # TODO: debug only to generate smaller data.json file
+        #    break 
 
         veh_id = sync_id * 2
         inf_id = veh_id + 1
@@ -139,10 +139,10 @@ def convert_v2x_to_new_format(v2x_path: str):
                 'extrinsics': extrinsics_infrastructure.tolist(),
                 'intrinsics': [infrastructure_intrinsics['cam_K'][i:i+3] for i in range(0, len(infrastructure_intrinsics['cam_K']), 3)],
                 'id': infrastructure_intrinsics['cameraID'],
-                'max_x': int, # TODO: maybe both camera dicts need an additional parameter to flag if camera is from a vehicle or infrastructure?
-                'max_y': int,
-                'min_x': int,
-                'min_y': int,
+                'max_x': 1000, # TODO: maybe both camera dicts need an additional parameter to flag if camera is from a vehicle or infrastructure?
+                'max_y': 1000,
+                'min_x': -1000,
+                'min_y': -1000, # TODO: these are placeholder values!!!
             }
 
             data['cameras'].append(camera_infrastructure_dict)
@@ -221,26 +221,20 @@ def convert_v2x_to_new_format(v2x_path: str):
 
         print(sync_id)
     return data
-        # ========================= CATEGORIES =========================
-        # first consider all objects visible from the vehicle:
-        # maybe put this into annotations loop
-        """values_to_check = set([i['type'].lower() for i in camera_annotations])
-        exists, missing_categorie = values_exist(data = data['categories'], key = 'name', values = values_to_check, categories = True)
-        if not exists:
-            for cat in missing_categorie:
-                data['categories'].append({'id': len(data['categories']) + 1, 'name': cat})"""
-
-
-
 
 def main():
+    # load RoScenes for comparison, debug only
+    roscenes_data = json.load(open('/home/stud/iko/storage/group/deepscenario/RoScenes/trainval_63300.json', 'r'))
+
     v2x_path = '/home/stud/iko/storage/group/deepscenario/v2x-seq/v2x-seq/V2X-Seq-SPD'
     save_path = '/home/stud/iko/test/V2X-Seq-test/v2x.json'
     new_data = convert_v2x_to_new_format(v2x_path)
+
+    #print([type(roscenes_data[key]) for key in roscenes_data.keys()])
+    #print([type(new_data[key]) for key in new_data.keys()])
+
     with open(save_path, 'w') as file:
         json.dump(new_data, file)
-
-
 
 
 if __name__ == "__main__":
